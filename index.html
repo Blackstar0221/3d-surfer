@@ -2,17 +2,27 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+  />
   <title>3D Subway Runner</title>
   <link rel="stylesheet" href="style.css" />
 </head>
 <body>
   <div id="ui">
     <h1>3D Subway Runner</h1>
-    <p>Move: ← → | Jump: Space</p>
+    <p class="instructions desktop-only">Move: ← → | Jump: Space</p>
+    <p class="instructions mobile-only">Tap buttons to move and jump</p>
     <p>Score: <span id="score">0</span></p>
     <button id="restartBtn" onclick="restartGame()">Restart</button>
     <p id="message"></p>
+  </div>
+
+  <div id="mobileControls">
+    <button class="controlBtn" id="leftBtn">←</button>
+    <button class="controlBtn" id="jumpBtn">↑</button>
+    <button class="controlBtn" id="rightBtn">→</button>
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
