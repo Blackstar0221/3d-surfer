@@ -2,39 +2,42 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: Arial, sans-serif;
-  background: #87ceeb;
-  color: white;
-  touch-action: manipulation;
+  background: skyblue;
 }
 
 #gameCanvas {
   display: block;
   width: 100vw;
   height: 100vh;
-  background: linear-gradient(#87ceeb, #dff6ff);
+  background: skyblue;
 }
 
 #ui {
   position: absolute;
   top: 10px;
   left: 10px;
-  z-index: 20;
-  background: rgba(0, 0, 0, 0.5);
-  padding: 12px 16px;
-  border-radius: 12px;
-  max-width: 250px;
+  z-index: 10;
+  background: rgba(0,0,0,0.5);
+  color: white;
+  padding: 10px;
+  border-radius: 10px;
 }
 
-#ui h1 {
-  margin: 0 0 8px 0;
-  font-size: 22px;
+#mobileControls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  gap: 10px;
 }
 
-#ui p {
-  margin: 6px 0;
-  font-size: 14px;
+#mobileControls button {
+  width: 60px;
+  height: 60px;
+  font-size: 24px;
 }
-
 #restartBtn {
   margin-top: 10px;
   padding: 8px 14px;
