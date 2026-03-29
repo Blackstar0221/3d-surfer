@@ -2,13 +2,16 @@ body {
   margin: 0;
   overflow: hidden;
   font-family: Arial, sans-serif;
-  background: black;
+  background: #87ceeb;
   color: white;
   touch-action: manipulation;
 }
 
-canvas {
+#gameCanvas {
   display: block;
+  width: 100vw;
+  height: 100vh;
+  background: linear-gradient(#87ceeb, #dff6ff);
 }
 
 #ui {
@@ -16,10 +19,10 @@ canvas {
   top: 10px;
   left: 10px;
   z-index: 20;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(0, 0, 0, 0.5);
   padding: 12px 16px;
   border-radius: 12px;
-  max-width: 260px;
+  max-width: 250px;
 }
 
 #ui h1 {
@@ -29,12 +32,81 @@ canvas {
 
 #ui p {
   margin: 6px 0;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 #restartBtn {
   margin-top: 10px;
   padding: 8px 14px;
+  font-size: 15px;
+  border: none;
+  border-radius: 8px;
+  background: #ff9800;
+  color: white;
+  cursor: pointer;
+}
+
+#mobileControls {
+  position: absolute;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 20;
+  display: flex;
+  gap: 14px;
+}
+
+.controlBtn {
+  width: 70px;
+  height: 70px;
+  border: none;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  color: white;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.controlBtn:active {
+  background: rgba(255, 255, 255, 0.45);
+}
+
+.mobile-only {
+  display: none;
+}
+
+.desktop-only {
+  display: block;
+}
+
+@media (max-width: 768px) {
+  #ui {
+    max-width: 220px;
+    padding: 10px 12px;
+  }
+
+  #ui h1 {
+    font-size: 18px;
+  }
+
+  #ui p {
+    font-size: 13px;
+  }
+
+  .controlBtn {
+    width: 64px;
+    height: 64px;
+    font-size: 24px;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+}  padding: 8px 14px;
   font-size: 15px;
   border: none;
   border-radius: 8px;
