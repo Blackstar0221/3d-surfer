@@ -4,37 +4,284 @@ const ctx = canvas.getContext("2d");
 const scoreEl = document.getElementById("score");
 const messageEl = document.getElementById("message");
 const restartBtn = document.getElementById("restartBtn");
-
 const leftBtn = document.getElementById("leftBtn");
 const rightBtn = document.getElementById("rightBtn");
 const jumpBtn = document.getElementById("jumpBtn");
 
-let laneCenters = [];
-let roadLineOffset = 0;
+let w, h;
+let horizonY;
+let roadBottomWidth;
+let roadTopWidth;
+let laneBottomSpacing;
+let laneTopSpacing;
 
 let player;
 let obstacles;
 let score;
 let gameOver;
-let spawnCounter;
 let speed;
+let spawnTimer;
+let stripeOffset;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
-  laneCenters = [
-    canvas.width / 6,
-    canvas.width / 2,
-    canvas.width * 5 / 6
-  ];
+
+  w = canvas.width;
+  h = canvas.height;
+
+  horizonY = h * 0.28;
+  roadBottomWidth = w * 0.95;
+  roadTopWidth = w * 0.18;
+  laneBottomSpacing = roadBottomWidth / 3;
+  laneTopSpacing = roadTopWidth / 3;
 }
 
 function resetGame() {
   resizeCanvas();
 
-  const playerWidth = Math.min(50, canvas.width * 0.12);
-  const playerHeight = Math.min(70, canvas.height * 0.12);
+  player = {
+    lane: 1,
+    jumpHeight: 0,
+    velocityY: 0,
+    jumping: false,
+    width: Math.min(55, w * 0.11),
+    height: Math.min(75, h * 0.12)
+  };
 
+  obstacles = [];
+  score = 0;
+  gameOver = false;
+  speed = 0.012;
+  spawnTimer = 0;
+  stripeOffset = 0;
+
+  scoreEl.textContent = score;
+  messageEl.textContent = "";
+}
+
+function moveLeft() {
+  if (gameOver) return;
+  if (player.lane > 0) player.lane--;
+}
+
+function moveRight() {
+  if (gameOver) return;
+  if (player.lane < 2) player.lane++;
+}
+
+function jump() {
+  if (gameOver) return;
+  if (!player.jumping) {
+    player.jumping = true;
+    player.velocityY = 0.028;
+  }
+}
+
+function getLaneX(lane, depth) {
+  const centerX = w / 2;
+  const halfRoad = (roadTopWidth + (roadBottomWidth - roadTopWidth) * depth) / 2;
+  const spacing = laneTopSpacing + (laneBottomSpacing - laneTopSpacing) * depth;
+  return centerX - halfRoad + spacing * (lane + 0.5);
+}
+
+function spawnObstacle() {
+  const lane = Math.floor(Math.random() * 3);
+  obstacles.push({
+    lane: lane,
+    depth: 0.05,
+    size: 1
+  });
+}
+
+function update() {
+  if (gameOver) return;
+
+  if (player.jumping) {
+    player.jumpHeight += player.velocityY * h;
+    player.velocityY -= 0.0018 * h / 1000;
+
+    if (player.jumpHeight <= 0) {
+      player.jumpHeight = 0;
+      player.velocityY = 0;
+      player.jumping = false;
+    }
+  }
+
+  spawnTimer++;
+  if (spawnTimer >= 45) {
+    spawnObstacle();
+    spawnTimer = 0;
+  }
+
+  stripeOffset += speed * 1.4;
+  if (stripeOffset > 0.12) stripeOffset = 0;
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    obstacles[i].depth += speed;
+
+    if (obstacles[i].depth >= 1.02) {
+      obstacles.splice(i, 1);
+      score++;
+      scoreEl.textContent = score;
+
+      if (score % 5 === 0) {
+        speed += 0.001;
+      }
+      continue;
+    }
+
+    if (obstacles[i].depth > 0.82 && obstacles[i].lane === player.lane) {
+      if (player.jumpHeight < 55) {
+        gameOver = true;
+        messageEl.textContent = "Game Over 💥";
+      }
+    }
+  }
+}
+
+function drawBackground() {
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, "#87ceeb");
+  sky.addColorStop(1, "#eaf8ff");
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h);
+
+  ctx.fillStyle = "#d8c39a";
+  ctx.fillRect(0, horizonY, w, h - horizonY);
+}
+
+function drawRoad() {
+  const centerX = w / 2;
+
+  const leftTop = centerX - roadTopWidth / 2;
+  const rightTop = centerX + roadTopWidth / 2;
+  const leftBottom = centerX - roadBottomWidth / 2;
+  const rightBottom = centerX + roadBottomWidth / 2;
+
+  ctx.fillStyle = "#555";
+  ctx.beginPath();
+  ctx.moveTo(leftTop, horizonY);
+  ctx.lineTo(rightTop, horizonY);
+  ctx.lineTo(rightBottom, h);
+  ctx.lineTo(leftBottom, h);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "#ffffff";
+  ctx.lineWidth = 3;
+
+  for (let i = 1; i <= 2; i++) {
+    const topX = leftTop + laneTopSpacing * i;
+    const bottomX = leftBottom + laneBottomSpacing * i;
+
+    ctx.beginPath();
+    ctx.moveTo(topX, horizonY);
+    ctx.lineTo(bottomX, h);
+    ctx.stroke();
+  }
+
+  for (let d = 0; d < 1; d += 0.12) {
+    const z = (d + stripeOffset) % 1;
+    const y = horizonY + (h - horizonY) * z;
+    const widthAtY = roadTopWidth + (roadBottomWidth - roadTopWidth) * z;
+    const x1 = centerX - widthAtY / 2;
+    const x2 = centerX + widthAtY / 2;
+
+    ctx.strokeStyle = "rgba(255,255,255,0.35)";
+    ctx.beginPath();
+    ctx.moveTo(x1, y);
+    ctx.lineTo(x2, y);
+    ctx.stroke();
+  }
+}
+
+function drawPlayer() {
+  const baseX = getLaneX(player.lane, 0.92);
+  const baseY = h * 0.82;
+
+  const drawY = baseY - player.jumpHeight;
+  const shadowWidth = player.width * 0.9;
+
+  ctx.fillStyle = "rgba(0,0,0,0.25)";
+  ctx.beginPath();
+  ctx.ellipse(baseX, baseY + player.height * 0.95, shadowWidth / 2, 10, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#ff3b30";
+  ctx.fillRect(
+    baseX - player.width / 2,
+    drawY - player.height,
+    player.width,
+    player.height
+  );
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(baseX - 12, drawY - player.height + 14, 8, 8);
+  ctx.fillRect(baseX + 4, drawY - player.height + 14, 8, 8);
+}
+
+function drawObstacles() {
+  for (const obs of obstacles) {
+    const x = getLaneX(obs.lane, obs.depth);
+    const y = horizonY + (h - horizonY) * obs.depth;
+
+    const size = 18 + obs.depth * 70;
+    const boxHeight = size;
+    const boxWidth = size;
+
+    ctx.fillStyle = "#00aa55";
+    ctx.fillRect(x - boxWidth / 2, y - boxHeight, boxWidth, boxHeight);
+
+    ctx.fillStyle = "rgba(0,0,0,0.2)";
+    ctx.fillRect(x - boxWidth / 2, y - boxHeight, boxWidth, 8);
+  }
+}
+
+function draw() {
+  drawBackground();
+  drawRoad();
+  drawObstacles();
+  drawPlayer();
+}
+
+function loop() {
+  update();
+  draw();
+  requestAnimationFrame(loop);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") moveLeft();
+  if (e.key === "ArrowRight") moveRight();
+  if (e.key === "ArrowUp" || e.code === "Space") jump();
+});
+
+leftBtn.addEventListener("click", moveLeft);
+rightBtn.addEventListener("click", moveRight);
+jumpBtn.addEventListener("click", jump);
+
+leftBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  moveLeft();
+});
+
+rightBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  moveRight();
+});
+
+jumpBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  jump();
+});
+
+restartBtn.addEventListener("click", resetGame);
+
+window.addEventListener("resize", resetGame);
+
+resetGame();
+loop();
   player = {
     lane: 1,
     x: laneCenters[1],
