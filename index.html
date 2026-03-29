@@ -1,31 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-  />
-  <title>3D Subway Runner</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Runner Test</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="ui">
-    <h1>3D Subway Runner</h1>
-    <p class="instructions desktop-only">Move: ← → | Jump: Space</p>
-    <p class="instructions mobile-only">Tap buttons to move and jump</p>
+    <h1>Runner Test</h1>
     <p>Score: <span id="score">0</span></p>
-    <button id="restartBtn" onclick="restartGame()">Restart</button>
-    <p id="message"></p>
+    <p id="message">If you see a red box, the game works.</p>
   </div>
+
+  <canvas id="gameCanvas"></canvas>
 
   <div id="mobileControls">
-    <button class="controlBtn" id="leftBtn">←</button>
-    <button class="controlBtn" id="jumpBtn">↑</button>
-    <button class="controlBtn" id="rightBtn">→</button>
+    <button id="leftBtn">←</button>
+    <button id="jumpBtn">↑</button>
+    <button id="rightBtn">→</button>
   </div>
 
-  <script src="https://unpkg.com/three@0.158.0/build/three.min.js"></script>
   <script src="game.js"></script>
 </body>
 </html>
