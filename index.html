@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>3D Subway Runner</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div id="ui">
+    <h1>3D Subway Runner</h1>
+    <p>Move: ← → | Jump: Space</p>
+    <p>Score: <span id="score">0</span></p>
+    <button id="restartBtn" onclick="restartGame()">Restart</button>
+    <p id="message"></p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/three@0.158.0/build/three.min.js"></script>
+  <script src="game.js"></script>
+</body>
+</html>
