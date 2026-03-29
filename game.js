@@ -1,669 +1,264 @@
-let scene, camera, renderer;
+const canvas = document.getElementById("gameCanvas");
+const ctx = canvas.getContext("2d");
+
+const scoreEl = document.getElementById("score");
+const messageEl = document.getElementById("message");
+const restartBtn = document.getElementById("restartBtn");
+
+const leftBtn = document.getElementById("leftBtn");
+const rightBtn = document.getElementById("rightBtn");
+const jumpBtn = document.getElementById("jumpBtn");
+
+let width, height;
+let laneWidth;
+let lanes;
+
 let player;
-let obstacles = [];
-let roadSegments = [];
+let obstacles;
+let roadOffset;
+let score;
+let gameOver;
+let gameSpeed;
+let spawnTimer;
 
-let lane = 0;
-let targetX = 0;
-let velocityY = 0;
-let isJumping = false;
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
 
-let score = 0;
-let gameOver = false;
-let obstacleInterval;
+  width = canvas.width;
+  height = canvas.height;
 
-const lanePositions = [-2, 0, 2];
+  laneWidth = width / 3;
+  lanes = [laneWidth * 0.5, laneWidth * 1.5, laneWidth * 2.5];
+}
 
-window.addEventListener("load", () => {
-  if (typeof THREE === "undefined") {
-    document.getElementById("message").textContent =
-      "Error: Three.js failed to load.";
-    return;
+function resetGame() {
+  resizeCanvas();
+
+  player = {
+    lane: 1,
+    x: lanes[1],
+    y: height - 140,
+    width: Math.min(60, width * 0.12),
+    height: Math.min(80, height * 0.12),
+    vy: 0,
+    jumping: false
+  };
+
+  obstacles = [];
+  roadOffset = 0;
+  score = 0;
+  gameOver = false;
+  gameSpeed = Math.max(8, height * 0.012);
+  spawnTimer = 0;
+
+  scoreEl.textContent = score;
+  messageEl.textContent = "";
+}
+
+function moveLeft() {
+  if (gameOver) return;
+  if (player.lane > 0) {
+    player.lane--;
+  }
+}
+
+function moveRight() {
+  if (gameOver) return;
+  if (player.lane < 2) {
+    player.lane++;
+  }
+}
+
+function jump() {
+  if (gameOver) return;
+  if (!player.jumping) {
+    player.vy = -18;
+    player.jumping = true;
+  }
+}
+
+function spawnObstacle() {
+  const lane = Math.floor(Math.random() * 3);
+  const size = Math.min(70, width * 0.13);
+
+  obstacles.push({
+    lane: lane,
+    x: lanes[lane] - size / 2,
+    y: -size,
+    width: size,
+    height: size
+  });
+}
+
+function update() {
+  if (gameOver) return;
+
+  player.x += (lanes[player.lane] - player.x) * 0.25;
+
+  player.y += player.vy;
+  player.vy += 0.9;
+
+  const groundY = height - 140;
+  if (player.y >= groundY) {
+    player.y = groundY;
+    player.vy = 0;
+    player.jumping = false;
   }
 
-  try {
-    init();
-    animate();
-    obstacleInterval = setInterval(spawnObstacle, 900);
-  } catch (error) {
-    console.error(error);
-    document.getElementById("message").textContent =
-      "Game crashed. Check console.";
+  roadOffset += gameSpeed;
+  if (roadOffset > 80) {
+    roadOffset = 0;
   }
+
+  spawnTimer++;
+  if (spawnTimer > 50) {
+    spawnObstacle();
+    spawnTimer = 0;
+  }
+
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    obstacles[i].y += gameSpeed;
+
+    if (checkCollision(player, obstacles[i])) {
+      gameOver = true;
+      messageEl.textContent = "Game Over 💥";
+    }
+
+    if (obstacles[i].y > height) {
+      obstacles.splice(i, 1);
+      score++;
+      scoreEl.textContent = score;
+
+      if (score % 5 === 0) {
+        gameSpeed += 0.5;
+      }
+    }
+  }
+}
+
+function checkCollision(a, b) {
+  return (
+    a.x - a.width / 2 < b.x + b.width &&
+    a.x + a.width / 2 > b.x &&
+    a.y < b.y + b.height &&
+    a.y + a.height > b.y
+  );
+}
+
+function drawBackground() {
+  ctx.fillStyle = "#87ceeb";
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.fillStyle = "#d9d9d9";
+  ctx.fillRect(0, height - 160, width, 160);
+
+  ctx.strokeStyle = "white";
+  ctx.lineWidth = 6;
+  ctx.setLineDash([30, 20]);
+
+  for (let i = 1; i <= 2; i++) {
+    ctx.beginPath();
+    ctx.moveTo(i * laneWidth, 0);
+    ctx.lineTo(i * laneWidth, height);
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
+
+  ctx.fillStyle = "#555";
+  ctx.fillRect(0, height - 120, width, 120);
+
+  ctx.strokeStyle = "#fff";
+  ctx.lineWidth = 4;
+  ctx.setLineDash([40, 30]);
+
+  for (let i = -1; i < 20; i++) {
+    const y = i * 80 + (roadOffset % 80);
+    ctx.beginPath();
+    ctx.moveTo(laneWidth, y);
+    ctx.lineTo(laneWidth, y + 40);
+    ctx.stroke();
+
+    ctx.beginPath();
+    ctx.moveTo(laneWidth * 2, y);
+    ctx.lineTo(laneWidth * 2, y + 40);
+    ctx.stroke();
+  }
+
+  ctx.setLineDash([]);
+}
+
+function drawPlayer() {
+  ctx.fillStyle = "#ff3b30";
+  ctx.fillRect(
+    player.x - player.width / 2,
+    player.y,
+    player.width,
+    player.height
+  );
+
+  ctx.fillStyle = "#ffffff";
+  ctx.fillRect(
+    player.x - player.width / 4,
+    player.y + 15,
+    player.width / 6,
+    player.width / 6
+  );
+  ctx.fillRect(
+    player.x + player.width / 12,
+    player.y + 15,
+    player.width / 6,
+    player.width / 6
+  );
+}
+
+function drawObstacles() {
+  ctx.fillStyle = "#00aa55";
+  for (const obs of obstacles) {
+    ctx.fillRect(obs.x, obs.y, obs.width, obs.height);
+  }
+}
+
+function draw() {
+  drawBackground();
+  drawPlayer();
+  drawObstacles();
+}
+
+function gameLoop() {
+  update();
+  draw();
+  requestAnimationFrame(gameLoop);
+}
+
+document.addEventListener("keydown", (e) => {
+  if (e.key === "ArrowLeft") moveLeft();
+  if (e.key === "ArrowRight") moveRight();
+  if (e.key === "ArrowUp" || e.code === "Space") jump();
 });
 
-function init() {
-  scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x87ceeb);
-
-  camera = new THREE.PerspectiveCamera(
-    75,
-    window.innerWidth / window.innerHeight,
-    0.1,
-    1000
-  );
-  camera.position.set(0, 6, 10);
-  camera.lookAt(0, 1, 0);
-
-  renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-  document.body.appendChild(renderer.domElement);
-
-  addLights();
-  createRoad();
-  createPlayer();
-  setupControls();
-
-  document.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("resize", handleResize);
-}
-
-function addLights() {
-  const ambient = new THREE.AmbientLight(0xffffff, 0.75);
-  scene.add(ambient);
-
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  dirLight.position.set(5, 10, 7);
-  scene.add(dirLight);
-}
-
-function createRoad() {
-  const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
-  const lineMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-
-  for (let i = 0; i < 5; i++) {
-    const road = new THREE.Mesh(
-      new THREE.BoxGeometry(8, 1, 40),
-      roadMaterial
-    );
-    road.position.set(0, -0.5, -i * 40);
-    scene.add(road);
-    roadSegments.push(road);
-
-    for (let x of [-1, 1]) {
-      const line = new THREE.Mesh(
-        new THREE.BoxGeometry(0.12, 0.02, 40),
-        lineMaterial
-      );
-      line.position.set(x, 0.02, -i * 40);
-      scene.add(line);
-      roadSegments.push(line);
-    }
-  }
-}
-
-function createPlayer() {
-  const geometry = new THREE.BoxGeometry(1, 1.5, 1);
-  const material = new THREE.MeshStandardMaterial({ color: 0xff3333 });
-  player = new THREE.Mesh(geometry, material);
-  player.position.set(0, 0.75, 3);
-  scene.add(player);
-}
-
-function setupControls() {
-  const leftBtn = document.getElementById("leftBtn");
-  const rightBtn = document.getElementById("rightBtn");
-  const jumpBtn = document.getElementById("jumpBtn");
-
-  if (leftBtn) {
-    leftBtn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      moveLeft();
-    });
-    leftBtn.addEventListener("click", moveLeft);
-  }
-
-  if (rightBtn) {
-    rightBtn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      moveRight();
-    });
-    rightBtn.addEventListener("click", moveRight);
-  }
-
-  if (jumpBtn) {
-    jumpBtn.addEventListener("touchstart", (e) => {
-      e.preventDefault();
-      jump();
-    });
-    jumpBtn.addEventListener("click", jump);
-  }
-}
-
-function handleKeyDown(event) {
-  if (gameOver) return;
-
-  if (event.key === "ArrowLeft") moveLeft();
-  if (event.key === "ArrowRight") moveRight();
-  if (event.code === "Space") jump();
-}
-
-function moveLeft() {
-  if (gameOver) return;
-  if (lane > -1) {
-    lane--;
-    targetX = lanePositions[lane + 1];
-  }
-}
-
-function moveRight() {
-  if (gameOver) return;
-  if (lane < 1) {
-    lane++;
-    targetX = lanePositions[lane + 1];
-  }
-}
-
-function jump() {
-  if (gameOver) return;
-  if (!isJumping) {
-    velocityY = 0.2;
-    isJumping = true;
-  }
-}
-
-function spawnObstacle() {
-  if (gameOver || !scene) return;
-
-  const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-  const material = new THREE.MeshStandardMaterial({ color: 0x00cc66 });
-  const obstacle = new THREE.Mesh(geometry, material);
-
-  const randomLane = Math.floor(Math.random() * 3);
-  obstacle.position.set(lanePositions[randomLane], 0.6, -60);
-
-  scene.add(obstacle);
-  obstacles.push(obstacle);
-}
-
-function updatePlayer() {
-  player.position.x += (targetX - player.position.x) * 0.2;
-
-  if (isJumping) {
-    player.position.y += velocityY;
-    velocityY -= 0.012;
-
-    if (player.position.y <= 0.75) {
-      player.position.y = 0.75;
-      velocityY = 0;
-      isJumping = false;
-    }
-  }
-}
-
-function updateRoad() {
-  for (let segment of roadSegments) {
-    segment.position.z += 0.5;
-    if (segment.position.z > 20) {
-      segment.position.z -= 200;
-    }
-  }
-}
-
-function updateObstacles() {
-  for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].position.z += 0.5;
-
-    if (checkCollision(player, obstacles[i])) {
-      endGame();
-    }
-
-    if (obstacles[i].position.z > 12) {
-      scene.remove(obstacles[i]);
-      obstacles.splice(i, 1);
-      score++;
-      document.getElementById("score").textContent = score;
-    }
-  }
-}
-
-function checkCollision(a, b) {
-  const dx = Math.abs(a.position.x - b.position.x);
-  const dy = Math.abs(a.position.y - b.position.y);
-  const dz = Math.abs(a.position.z - b.position.z);
-  return dx < 1 && dy < 1 && dz < 1;
-}
-
-function endGame() {
-  gameOver = true;
-  document.getElementById("message").textContent = "Game Over 💥";
-}
-
-function restartGame() {
-  for (let obstacle of obstacles) {
-    scene.remove(obstacle);
-  }
-
-  obstacles = [];
-  score = 0;
-  lane = 0;
-  targetX = 0;
-  velocityY = 0;
-  isJumping = false;
-  gameOver = false;
-
-  if (player) {
-    player.position.set(0, 0.75, 3);
-  }
-
-  document.getElementById("score").textContent = score;
-  document.getElementById("message").textContent = "";
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (!renderer || !scene || !camera) return;
-
-  if (!gameOver) {
-    updatePlayer();
-    updateRoad();
-    updateObstacles();
-  }
-
-  renderer.render(scene, camera);
-}
-
-function handleResize() {
-  if (!camera || !renderer) return;
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-    }
-  addLights();
-  createRoad();
-  createPlayer();
-  setupControls();
-
-  document.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("resize", handleResize);
-}
-
-function addLights() {
-  const ambient = new THREE.AmbientLight(0xffffff, 0.75);
-  scene.add(ambient);
-
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  dirLight.position.set(5, 10, 7);
-  scene.add(dirLight);
-}
-
-function createRoad() {
-  const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
-  const lineMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-
-  for (let i = 0; i < 5; i++) {
-    const road = new THREE.Mesh(
-      new THREE.BoxGeometry(8, 1, 40),
-      roadMaterial
-    );
-    road.position.set(0, -0.5, -i * 40);
-    scene.add(road);
-    roadSegments.push(road);
-
-    for (let x of [-1, 1]) {
-      const line = new THREE.Mesh(
-        new THREE.BoxGeometry(0.12, 0.02, 40),
-        lineMaterial
-      );
-      line.position.set(x, 0.02, -i * 40);
-      scene.add(line);
-      roadSegments.push(line);
-    }
-  }
-}
-
-function createPlayer() {
-  const geometry = new THREE.BoxGeometry(1, 1.5, 1);
-  const material = new THREE.MeshStandardMaterial({ color: 0xff3333 });
-  player = new THREE.Mesh(geometry, material);
-  player.position.set(0, 0.75, 3);
-  scene.add(player);
-}
-
-function setupControls() {
-  const leftBtn = document.getElementById("leftBtn");
-  const rightBtn = document.getElementById("rightBtn");
-  const jumpBtn = document.getElementById("jumpBtn");
-
-  leftBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    moveLeft();
-  });
-
-  rightBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    moveRight();
-  });
-
-  jumpBtn.addEventListener("touchstart", (e) => {
-    e.preventDefault();
-    jump();
-  });
-
-  leftBtn.addEventListener("click", moveLeft);
-  rightBtn.addEventListener("click", moveRight);
-  jumpBtn.addEventListener("click", jump);
-}
-
-function handleKeyDown(event) {
-  if (gameOver) return;
-
-  if (event.key === "ArrowLeft") {
-    moveLeft();
-  }
-
-  if (event.key === "ArrowRight") {
-    moveRight();
-  }
-
-  if (event.code === "Space") {
-    jump();
-  }
-}
-
-function moveLeft() {
-  if (gameOver) return;
-  if (lane > -1) {
-    lane--;
-    targetX = lanePositions[lane + 1];
-  }
-}
-
-function moveRight() {
-  if (gameOver) return;
-  if (lane < 1) {
-    lane++;
-    targetX = lanePositions[lane + 1];
-  }
-}
-
-function jump() {
-  if (gameOver) return;
-  if (!isJumping) {
-    velocityY = 0.2;
-    isJumping = true;
-  }
-}
-
-function spawnObstacle() {
-  if (gameOver) return;
-
-  const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-  const material = new THREE.MeshStandardMaterial({ color: 0x00cc66 });
-  const obstacle = new THREE.Mesh(geometry, material);
-
-  const randomLane = Math.floor(Math.random() * 3);
-  obstacle.position.set(lanePositions[randomLane], 0.6, -60);
-
-  scene.add(obstacle);
-  obstacles.push(obstacle);
-}
-
-function updatePlayer() {
-  player.position.x += (targetX - player.position.x) * 0.2;
-
-  if (isJumping) {
-    player.position.y += velocityY;
-    velocityY -= 0.012;
-
-    if (player.position.y <= 0.75) {
-      player.position.y = 0.75;
-      velocityY = 0;
-      isJumping = false;
-    }
-  }
-}
-
-function updateRoad() {
-  for (let segment of roadSegments) {
-    segment.position.z += 0.5;
-
-    if (segment.position.z > 20) {
-      segment.position.z -= 200;
-    }
-  }
-}
-
-function updateObstacles() {
-  for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].position.z += 0.5;
-
-    if (checkCollision(player, obstacles[i])) {
-      endGame();
-    }
-
-    if (obstacles[i].position.z > 12) {
-      scene.remove(obstacles[i]);
-      obstacles.splice(i, 1);
-      score++;
-      document.getElementById("score").textContent = score;
-    }
-  }
-}
-
-function checkCollision(a, b) {
-  const dx = Math.abs(a.position.x - b.position.x);
-  const dy = Math.abs(a.position.y - b.position.y);
-  const dz = Math.abs(a.position.z - b.position.z);
-
-  return dx < 1 && dy < 1 && dz < 1;
-}
-
-function endGame() {
-  gameOver = true;
-  document.getElementById("message").textContent = "Game Over 💥";
-}
-
-function restartGame() {
-  for (let obstacle of obstacles) {
-    scene.remove(obstacle);
-  }
-
-  obstacles = [];
-  score = 0;
-  lane = 0;
-  targetX = 0;
-  velocityY = 0;
-  isJumping = false;
-  gameOver = false;
-
-  player.position.set(0, 0.75, 3);
-
-  document.getElementById("score").textContent = score;
-  document.getElementById("message").textContent = "";
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (!gameOver) {
-    updatePlayer();
-    updateRoad();
-    updateObstacles();
-  }
-
-  renderer.render(scene, camera);
-}
-
-function handleResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.setSize(window.innerWidth, window.innerHeight);
-}  addLights();
-  createRoad();
-  createPlayer();
-
-  document.addEventListener("keydown", handleKeyDown);
-  window.addEventListener("resize", handleResize);
-}
-
-function addLights() {
-  const ambient = new THREE.AmbientLight(0xffffff, 0.7);
-  scene.add(ambient);
-
-  const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
-  dirLight.position.set(5, 10, 7);
-  scene.add(dirLight);
-}
-
-function createRoad() {
-  const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
-  const lineMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
-
-  for (let i = 0; i < 5; i++) {
-    const road = new THREE.Mesh(
-      new THREE.BoxGeometry(8, 1, 40),
-      roadMaterial
-    );
-    road.position.set(0, -0.5, -i * 40);
-    scene.add(road);
-    roadSegments.push(road);
-
-    for (let x of [-1, 1]) {
-      const line = new THREE.Mesh(
-        new THREE.BoxGeometry(0.12, 0.02, 40),
-        lineMaterial
-      );
-      line.position.set(x, 0.02, -i * 40);
-      scene.add(line);
-      roadSegments.push(line);
-    }
-  }
-}
-
-function createPlayer() {
-  const body = new THREE.BoxGeometry(1, 1.5, 1);
-  const material = new THREE.MeshStandardMaterial({ color: 0xff3333 });
-  player = new THREE.Mesh(body, material);
-  player.position.set(0, 0.75, 3);
-  scene.add(player);
-}
-
-function handleKeyDown(event) {
-  if (gameOver) return;
-
-  if (event.key === "ArrowLeft" && lane > -1) {
-    lane--;
-    targetX = lanePositions[lane + 1];
-  }
-
-  if (event.key === "ArrowRight" && lane < 1) {
-    lane++;
-    targetX = lanePositions[lane + 1];
-  }
-
-  if (event.code === "Space" && !isJumping) {
-    velocityY = 0.2;
-    isJumping = true;
-  }
-}
-
-function spawnObstacle() {
-  if (gameOver) return;
-
-  const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
-  const material = new THREE.MeshStandardMaterial({ color: 0x00cc66 });
-  const obstacle = new THREE.Mesh(geometry, material);
-
-  const randomLane = Math.floor(Math.random() * 3);
-  obstacle.position.set(lanePositions[randomLane], 0.6, -60);
-
-  scene.add(obstacle);
-  obstacles.push(obstacle);
-}
-
-function updatePlayer() {
-  player.position.x += (targetX - player.position.x) * 0.2;
-
-  if (isJumping) {
-    player.position.y += velocityY;
-    velocityY -= 0.012;
-
-    if (player.position.y <= 0.75) {
-      player.position.y = 0.75;
-      velocityY = 0;
-      isJumping = false;
-    }
-  }
-}
-
-function updateRoad() {
-  for (let segment of roadSegments) {
-    segment.position.z += 0.5;
-
-    if (segment.position.z > 20) {
-      segment.position.z -= 200;
-    }
-  }
-}
-
-function updateObstacles() {
-  for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].position.z += 0.5;
-
-    if (checkCollision(player, obstacles[i])) {
-      endGame();
-    }
-
-    if (obstacles[i].position.z > 12) {
-      scene.remove(obstacles[i]);
-      obstacles.splice(i, 1);
-      score++;
-      document.getElementById("score").textContent = score;
-    }
-  }
-}
-
-function checkCollision(a, b) {
-  const dx = Math.abs(a.position.x - b.position.x);
-  const dy = Math.abs(a.position.y - b.position.y);
-  const dz = Math.abs(a.position.z - b.position.z);
-
-  return dx < 1 && dy < 1 && dz < 1;
-}
-
-function endGame() {
-  gameOver = true;
-  document.getElementById("message").textContent = "Game Over 💥";
-}
-
-function restartGame() {
-  for (let obstacle of obstacles) {
-    scene.remove(obstacle);
-  }
-
-  obstacles = [];
-  score = 0;
-  lane = 0;
-  targetX = 0;
-  velocityY = 0;
-  isJumping = false;
-  gameOver = false;
-
-  player.position.set(0, 0.75, 3);
-
-  document.getElementById("score").textContent = score;
-  document.getElementById("message").textContent = "";
-}
-
-function animate() {
-  requestAnimationFrame(animate);
-
-  if (!gameOver) {
-    updatePlayer();
-    updateRoad();
-    updateObstacles();
-  }
-
-  renderer.render(scene, camera);
-}
-
-function handleResize() {
-  camera.aspect = window.innerWidth / window.innerHeight;
-  camera.updateProjectionMatrix();
-  renderer.setSize(window.innerWidth, window.innerHeight);
-      }
+leftBtn.addEventListener("click", moveLeft);
+rightBtn.addEventListener("click", moveRight);
+jumpBtn.addEventListener("click", jump);
+
+leftBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  moveLeft();
+});
+
+rightBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  moveRight();
+});
+
+jumpBtn.addEventListener("touchstart", (e) => {
+  e.preventDefault();
+  jump();
+});
+
+restartBtn.addEventListener("click", resetGame);
+window.addEventListener("resize", resizeCanvas);
+
+resetGame();
+gameLoop();
