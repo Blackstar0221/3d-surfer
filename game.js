@@ -31,10 +31,232 @@ function init() {
   camera.lookAt(0, 1, 0);
 
   renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.setSize(window.innerWidth, window.innerHeight);
   document.body.appendChild(renderer.domElement);
 
   addLights();
+  createRoad();
+  createPlayer();
+  setupControls();
+
+  document.addEventListener("keydown", handleKeyDown);
+  window.addEventListener("resize", handleResize);
+}
+
+function addLights() {
+  const ambient = new THREE.AmbientLight(0xffffff, 0.75);
+  scene.add(ambient);
+
+  const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
+  dirLight.position.set(5, 10, 7);
+  scene.add(dirLight);
+}
+
+function createRoad() {
+  const roadMaterial = new THREE.MeshStandardMaterial({ color: 0x444444 });
+  const lineMaterial = new THREE.MeshStandardMaterial({ color: 0xffffff });
+
+  for (let i = 0; i < 5; i++) {
+    const road = new THREE.Mesh(
+      new THREE.BoxGeometry(8, 1, 40),
+      roadMaterial
+    );
+    road.position.set(0, -0.5, -i * 40);
+    scene.add(road);
+    roadSegments.push(road);
+
+    for (let x of [-1, 1]) {
+      const line = new THREE.Mesh(
+        new THREE.BoxGeometry(0.12, 0.02, 40),
+        lineMaterial
+      );
+      line.position.set(x, 0.02, -i * 40);
+      scene.add(line);
+      roadSegments.push(line);
+    }
+  }
+}
+
+function createPlayer() {
+  const geometry = new THREE.BoxGeometry(1, 1.5, 1);
+  const material = new THREE.MeshStandardMaterial({ color: 0xff3333 });
+  player = new THREE.Mesh(geometry, material);
+  player.position.set(0, 0.75, 3);
+  scene.add(player);
+}
+
+function setupControls() {
+  const leftBtn = document.getElementById("leftBtn");
+  const rightBtn = document.getElementById("rightBtn");
+  const jumpBtn = document.getElementById("jumpBtn");
+
+  leftBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveLeft();
+  });
+
+  rightBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    moveRight();
+  });
+
+  jumpBtn.addEventListener("touchstart", (e) => {
+    e.preventDefault();
+    jump();
+  });
+
+  leftBtn.addEventListener("click", moveLeft);
+  rightBtn.addEventListener("click", moveRight);
+  jumpBtn.addEventListener("click", jump);
+}
+
+function handleKeyDown(event) {
+  if (gameOver) return;
+
+  if (event.key === "ArrowLeft") {
+    moveLeft();
+  }
+
+  if (event.key === "ArrowRight") {
+    moveRight();
+  }
+
+  if (event.code === "Space") {
+    jump();
+  }
+}
+
+function moveLeft() {
+  if (gameOver) return;
+  if (lane > -1) {
+    lane--;
+    targetX = lanePositions[lane + 1];
+  }
+}
+
+function moveRight() {
+  if (gameOver) return;
+  if (lane < 1) {
+    lane++;
+    targetX = lanePositions[lane + 1];
+  }
+}
+
+function jump() {
+  if (gameOver) return;
+  if (!isJumping) {
+    velocityY = 0.2;
+    isJumping = true;
+  }
+}
+
+function spawnObstacle() {
+  if (gameOver) return;
+
+  const geometry = new THREE.BoxGeometry(1.2, 1.2, 1.2);
+  const material = new THREE.MeshStandardMaterial({ color: 0x00cc66 });
+  const obstacle = new THREE.Mesh(geometry, material);
+
+  const randomLane = Math.floor(Math.random() * 3);
+  obstacle.position.set(lanePositions[randomLane], 0.6, -60);
+
+  scene.add(obstacle);
+  obstacles.push(obstacle);
+}
+
+function updatePlayer() {
+  player.position.x += (targetX - player.position.x) * 0.2;
+
+  if (isJumping) {
+    player.position.y += velocityY;
+    velocityY -= 0.012;
+
+    if (player.position.y <= 0.75) {
+      player.position.y = 0.75;
+      velocityY = 0;
+      isJumping = false;
+    }
+  }
+}
+
+function updateRoad() {
+  for (let segment of roadSegments) {
+    segment.position.z += 0.5;
+
+    if (segment.position.z > 20) {
+      segment.position.z -= 200;
+    }
+  }
+}
+
+function updateObstacles() {
+  for (let i = obstacles.length - 1; i >= 0; i--) {
+    obstacles[i].position.z += 0.5;
+
+    if (checkCollision(player, obstacles[i])) {
+      endGame();
+    }
+
+    if (obstacles[i].position.z > 12) {
+      scene.remove(obstacles[i]);
+      obstacles.splice(i, 1);
+      score++;
+      document.getElementById("score").textContent = score;
+    }
+  }
+}
+
+function checkCollision(a, b) {
+  const dx = Math.abs(a.position.x - b.position.x);
+  const dy = Math.abs(a.position.y - b.position.y);
+  const dz = Math.abs(a.position.z - b.position.z);
+
+  return dx < 1 && dy < 1 && dz < 1;
+}
+
+function endGame() {
+  gameOver = true;
+  document.getElementById("message").textContent = "Game Over 💥";
+}
+
+function restartGame() {
+  for (let obstacle of obstacles) {
+    scene.remove(obstacle);
+  }
+
+  obstacles = [];
+  score = 0;
+  lane = 0;
+  targetX = 0;
+  velocityY = 0;
+  isJumping = false;
+  gameOver = false;
+
+  player.position.set(0, 0.75, 3);
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("message").textContent = "";
+}
+
+function animate() {
+  requestAnimationFrame(animate);
+
+  if (!gameOver) {
+    updatePlayer();
+    updateRoad();
+    updateObstacles();
+  }
+
+  renderer.render(scene, camera);
+}
+
+function handleResize() {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  renderer.setSize(window.innerWidth, window.innerHeight);
+}  addLights();
   createRoad();
   createPlayer();
 
