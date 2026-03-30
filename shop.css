@@ -1,0 +1,79 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: linear-gradient(135deg, #1e293b, #334155);
+  color: white;
+  min-height: 100vh;
+}
+
+.shop-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 24px;
+}
+
+h1 {
+  margin-top: 0;
+}
+
+.back-link {
+  display: inline-block;
+  margin-bottom: 20px;
+  color: white;
+  text-decoration: none;
+  background: #3b82f6;
+  padding: 10px 14px;
+  border-radius: 10px;
+}
+
+.theme-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 18px;
+}
+
+.theme-card {
+  background: rgba(255,255,255,0.08);
+  border-radius: 14px;
+  padding: 16px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+}
+
+.preview {
+  height: 100px;
+  border-radius: 10px;
+  margin-bottom: 12px;
+}
+
+.theme-card h2 {
+  margin: 0 0 8px 0;
+  font-size: 20px;
+}
+
+.theme-card p {
+  margin: 6px 0;
+}
+
+.theme-card button {
+  margin-top: 10px;
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.buy-btn {
+  background: #22c55e;
+  color: white;
+}
+
+.equip-btn {
+  background: #f59e0b;
+  color: white;
+}
+
+.owned-text {
+  color: #93c5fd;
+  font-weight: bold;
+}
