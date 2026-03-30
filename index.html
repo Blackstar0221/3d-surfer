@@ -3,14 +3,19 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Runner Test</title>
+  <title>Runner Game</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="ui">
-    <h1>Runner Test</h1>
-    <p>Use ← → to move</p>
-    <button id="startBtn">Start</button>
+    <h1>Runner Game</h1>
+    <p class="desktop-text">Move: ← → | Jump: Space / ↑</p>
+    <p class="mobile-text">Tap buttons to move and jump</p>
+    <p>Score: <span id="score">0</span></p>
+    <div class="button-row">
+      <button id="startBtn">Start</button>
+      <button id="restartBtn">Restart</button>
+    </div>
     <p id="message">Press Start to begin.</p>
   </div>
 
@@ -18,6 +23,7 @@
 
   <div id="mobileControls">
     <button id="leftBtn">←</button>
+    <button id="jumpBtn">↑</button>
     <button id="rightBtn">→</button>
   </div>
 
