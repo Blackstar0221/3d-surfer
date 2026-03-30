@@ -1,26 +1,22 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Fake 3D Runner</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Runner Test</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="ui">
-    <h1>Fake 3D Runner</h1>
-    <p class="desktop-text">Move: ← → | Jump: Space / ↑</p>
-    <p class="mobile-text">Tap buttons to move and jump</p>
-    <p>Score: <span id="score">0</span></p>
-    <button id="restartBtn">Restart</button>
-    <p id="message"></p>
+    <h1>Runner Test</h1>
+    <p>Use ← → to move</p>
+    <p id="message">If you see a gray track and red box, it works.</p>
   </div>
 
   <canvas id="gameCanvas"></canvas>
 
   <div id="mobileControls">
     <button id="leftBtn">←</button>
-    <button id="jumpBtn">↑</button>
     <button id="rightBtn">→</button>
   </div>
 
