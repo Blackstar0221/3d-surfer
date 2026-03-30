@@ -1,8 +1,12 @@
 const canvas = document.getElementById("gameCanvas");
 const ctx = canvas.getContext("2d");
 
+const startBtn = document.getElementById("startBtn");
+const message = document.getElementById("message");
+
 let lane = 1;
 let lanes = [];
+let gameStarted = false;
 
 function resizeCanvas() {
   canvas.width = window.innerWidth;
@@ -10,7 +14,7 @@ function resizeCanvas() {
   lanes = [canvas.width * 0.3, canvas.width * 0.5, canvas.width * 0.7];
 }
 
-function draw() {
+function drawScene() {
   const w = canvas.width;
   const h = canvas.height;
 
@@ -54,24 +58,44 @@ function draw() {
 
   ctx.fillStyle = "red";
   ctx.fillRect(playerX - 25, playerY - 50, 50, 50);
+}
 
-  requestAnimationFrame(draw);
+function loop() {
+  if (!gameStarted) return;
+
+  drawScene();
+  requestAnimationFrame(loop);
 }
 
 document.addEventListener("keydown", function (e) {
+  if (!gameStarted) return;
+
   if (e.key === "ArrowLeft" && lane > 0) lane--;
   if (e.key === "ArrowRight" && lane < 2) lane++;
 });
 
 document.getElementById("leftBtn").addEventListener("click", function () {
+  if (!gameStarted) return;
   if (lane > 0) lane--;
 });
 
 document.getElementById("rightBtn").addEventListener("click", function () {
+  if (!gameStarted) return;
   if (lane < 2) lane++;
 });
 
-window.addEventListener("resize", resizeCanvas);
+startBtn.addEventListener("click", function () {
+  if (!gameStarted) {
+    gameStarted = true;
+    message.textContent = "Game started!";
+    loop();
+  }
+});
+
+window.addEventListener("resize", function () {
+  resizeCanvas();
+  drawScene();
+});
 
 resizeCanvas();
-draw();
+drawScene();
