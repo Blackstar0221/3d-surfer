@@ -194,7 +194,7 @@ function updateJump() {
 
 function updateObstacles() {
   for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].depth += 0.018;
+    obstacles[i].depth += 0.012;
 
     if (obstacles[i].depth > 1.05) {
       obstacles.splice(i, 1);
@@ -203,8 +203,8 @@ function updateObstacles() {
       continue;
     }
 
-    if (obstacles[i].lane === lane && obstacles[i].depth > 0.82 && obstacles[i].depth < 0.98) {
-      if (playerJump < 60) {
+    if (obstacles[i].lane === lane && obstacles[i].depth > 0.80 && obstacles[i].depth < 0.99) {
+      if (playerJump < 70) {
         gameOver = true;
         gameStarted = false;
         messageEl.textContent = "Game Over!";
@@ -215,20 +215,18 @@ function updateObstacles() {
 
 function updateCoinsOnTrack() {
   for (let i = coinsOnTrack.length - 1; i >= 0; i--) {
-    coinsOnTrack[i].depth += 0.018;
+    coinsOnTrack[i].depth += 0.012;
 
     if (coinsOnTrack[i].depth > 1.05) {
       coinsOnTrack.splice(i, 1);
       continue;
     }
 
-    if (coinsOnTrack[i].lane === lane && coinsOnTrack[i].depth > 0.78 && coinsOnTrack[i].depth < 0.96) {
-      if (playerJump < 90 || jumping) {
-        coinsOnTrack.splice(i, 1);
-        const totalCoins = getCoins() + 1;
-        setCoins(totalCoins);
-        coinsEl.textContent = totalCoins;
-      }
+    if (coinsOnTrack[i].lane === lane && coinsOnTrack[i].depth > 0.76 && coinsOnTrack[i].depth < 0.98) {
+      coinsOnTrack.splice(i, 1);
+      const totalCoins = getCoins() + 1;
+      setCoins(totalCoins);
+      coinsEl.textContent = totalCoins;
     }
   }
 }
@@ -329,7 +327,7 @@ function drawRoad() {
 
   ctx.strokeStyle = "rgba(255,255,255,0.25)";
   for (let i = 0; i < 8; i++) {
-    const depth = (i / 8 + (frameCount * 0.01)) % 1;
+    const depth = (i / 8 + (frameCount * 0.008)) % 1;
     const edges = getRoadEdgesAtDepth(depth);
     ctx.beginPath();
     ctx.moveTo(edges.leftX, edges.y);
@@ -346,7 +344,7 @@ function drawPlayer() {
 
   ctx.fillStyle = "rgba(0,0,0,0.25)";
   ctx.beginPath();
-  ctx.ellipse(x, edges.y + 10, 22, 8, 0, 0, Math.PI * 2);
+  ctx.ellipse(x, edges.y + 10, 24, 9, 0, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = "red";
@@ -358,27 +356,35 @@ function drawPlayer() {
 }
 
 function drawObstacles() {
-  ctx.fillStyle = "green";
+  ctx.fillStyle = "#22c55e";
 
   for (const obstacle of obstacles) {
     const x = getLaneX(obstacle.lane, obstacle.depth);
     const edges = getRoadEdgesAtDepth(obstacle.depth);
-    const size = 12 + obstacle.depth * 35;
+    const size = 20 + obstacle.depth * 55;
+
     ctx.fillRect(x - size / 2, edges.y - size, size, size);
+
+    ctx.fillStyle = "#166534";
+    ctx.fillRect(x - size / 2, edges.y - size, size, Math.max(4, size * 0.18));
+    ctx.fillStyle = "#22c55e";
   }
 }
 
 function drawCoins() {
-  ctx.fillStyle = "gold";
-
   for (const coin of coinsOnTrack) {
     const x = getLaneX(coin.lane, coin.depth);
     const edges = getRoadEdgesAtDepth(coin.depth);
-    const size = 8 + coin.depth * 18;
+    const size = 14 + coin.depth * 24;
 
+    ctx.fillStyle = "#ffd700";
     ctx.beginPath();
     ctx.arc(x, edges.y - size, size / 2, 0, Math.PI * 2);
     ctx.fill();
+
+    ctx.strokeStyle = "#ffb800";
+    ctx.lineWidth = 3;
+    ctx.stroke();
   }
 }
 
@@ -395,11 +401,11 @@ function loop() {
 
   frameCount++;
 
-  if (frameCount % 45 === 0) {
+  if (frameCount % 65 === 0) {
     spawnObstacle();
   }
 
-  if (frameCount % 60 === 0) {
+  if (frameCount % 85 === 0) {
     spawnCoin();
   }
 
