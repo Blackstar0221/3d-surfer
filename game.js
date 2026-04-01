@@ -660,7 +660,7 @@ startBtn.addEventListener("click", function () {
 });
 
 restartBtn.addEventListener("click", function () {
-  resetGame();
+  window.location.reload();
 });
 
 window.addEventListener("resize", function () {
