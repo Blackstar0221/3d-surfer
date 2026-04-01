@@ -261,44 +261,46 @@ function drawSky(theme) {
   ctx.fillRect(0, 0, w, h);
 }
 
-function drawDesertBackground(theme) {
-  ctx.fillStyle = "#ffd27a";
-  ctx.beginPath();
-  ctx.arc(w * 0.82, h * 0.14, 42, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.fillStyle = "#e7b96a";
-  ctx.beginPath();
-  ctx.moveTo(0, h * 0.35);
-  ctx.quadraticCurveTo(w * 0.2, h * 0.25, w * 0.4, h * 0.35);
-  ctx.quadraticCurveTo(w * 0.6, h * 0.45, w * 0.8, h * 0.34);
-  ctx.quadraticCurveTo(w * 0.9, h * 0.3, w, h * 0.36);
-  ctx.lineTo(w, h * 0.55);
-  ctx.lineTo(0, h * 0.55);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = "#d89b52";
-  ctx.beginPath();
-  ctx.moveTo(0, h * 0.45);
-  ctx.quadraticCurveTo(w * 0.25, h * 0.34, w * 0.45, h * 0.44);
-  ctx.quadraticCurveTo(w * 0.7, h * 0.54, w, h * 0.42);
-  ctx.lineTo(w, h * 0.6);
-  ctx.lineTo(0, h * 0.6);
-  ctx.closePath();
-  ctx.fill();
-
-  ctx.fillStyle = theme.deco;
-  drawCactus(w * 0.1, h * 0.31, 0.9);
-  drawCactus(w * 0.9, h * 0.3, 1.05);
-}
-
 function drawCactus(x, y, scale) {
   ctx.fillRect(x, y, 16 * scale, 70 * scale);
   ctx.fillRect(x - 16 * scale, y + 18 * scale, 16 * scale, 12 * scale);
   ctx.fillRect(x + 16 * scale, y + 28 * scale, 16 * scale, 12 * scale);
   ctx.fillRect(x - 16 * scale, y + 18 * scale, 10 * scale, 34 * scale);
   ctx.fillRect(x + 22 * scale, y + 28 * scale, 10 * scale, 34 * scale);
+}
+
+function drawDesertBackground(theme) {
+  const drift = Math.sin(frameCount * 0.01) * 20;
+
+  ctx.fillStyle = "#ffd27a";
+  ctx.beginPath();
+  ctx.arc(w * 0.82, h * 0.14 + Math.sin(frameCount * 0.02) * 4, 42, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#e7b96a";
+  ctx.beginPath();
+  ctx.moveTo(-40 + drift, h * 0.35);
+  ctx.quadraticCurveTo(w * 0.2, h * 0.25, w * 0.4 + drift, h * 0.35);
+  ctx.quadraticCurveTo(w * 0.6, h * 0.45, w * 0.8 + drift, h * 0.34);
+  ctx.quadraticCurveTo(w * 0.9, h * 0.3, w + 40, h * 0.36);
+  ctx.lineTo(w + 40, h * 0.55);
+  ctx.lineTo(-40, h * 0.55);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#d89b52";
+  ctx.beginPath();
+  ctx.moveTo(-40 - drift, h * 0.45);
+  ctx.quadraticCurveTo(w * 0.25, h * 0.34, w * 0.45 - drift, h * 0.44);
+  ctx.quadraticCurveTo(w * 0.7, h * 0.54, w + 40, h * 0.42);
+  ctx.lineTo(w + 40, h * 0.6);
+  ctx.lineTo(-40, h * 0.6);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = theme.deco;
+  drawCactus(w * 0.1, h * 0.31, 0.9);
+  drawCactus(w * 0.9, h * 0.3, 1.05);
 }
 
 function drawSnowBackground() {
@@ -310,7 +312,7 @@ function drawSnowBackground() {
   ctx.fillStyle = "#d8ebff";
   ctx.beginPath();
   ctx.moveTo(0, h * 0.38);
-  ctx.quadraticCurveTo(w * 0.2, h * 0.28, w * 0.4, h * 0.38);
+  ctx.quadraticCurveTo(w * 0.2, h * 0.28 + Math.sin(frameCount * 0.01) * 4, w * 0.4, h * 0.38);
   ctx.quadraticCurveTo(w * 0.6, h * 0.48, w * 0.8, h * 0.37);
   ctx.quadraticCurveTo(w * 0.9, h * 0.31, w, h * 0.38);
   ctx.lineTo(w, h * 0.56);
@@ -321,7 +323,7 @@ function drawSnowBackground() {
   ctx.fillStyle = "#f6fbff";
   ctx.beginPath();
   ctx.moveTo(0, h * 0.48);
-  ctx.quadraticCurveTo(w * 0.22, h * 0.42, w * 0.45, h * 0.49);
+  ctx.quadraticCurveTo(w * 0.22, h * 0.42, w * 0.45, h * 0.49 + Math.sin(frameCount * 0.012) * 3);
   ctx.quadraticCurveTo(w * 0.65, h * 0.56, w, h * 0.46);
   ctx.lineTo(w, h * 0.62);
   ctx.lineTo(0, h * 0.62);
@@ -329,9 +331,9 @@ function drawSnowBackground() {
   ctx.fill();
 
   ctx.fillStyle = "#ffffff";
-  for (let i = 0; i < 40; i++) {
-    const x = (i * 53 + frameCount * 1.1) % w;
-    const y = (i * 29 + frameCount * 1.6) % h;
+  for (let i = 0; i < 50; i++) {
+    const x = (i * 53 + frameCount * (1 + (i % 3) * 0.4)) % w;
+    const y = (i * 29 + frameCount * (1.6 + (i % 4) * 0.2)) % h;
     ctx.beginPath();
     ctx.arc(x, y, 2 + (i % 2), 0, Math.PI * 2);
     ctx.fill();
@@ -344,67 +346,79 @@ function drawCityBackground() {
   ctx.arc(w * 0.78, h * 0.16, 28, 0, Math.PI * 2);
   ctx.fill();
 
+  const shift = (frameCount * 0.15) % 80;
+
   const buildings = [
-    [0.04, 0.14, 0.07, 0.22],
-    [0.12, 0.08, 0.09, 0.28],
-    [0.22, 0.16, 0.07, 0.2],
-    [0.72, 0.12, 0.08, 0.24],
-    [0.81, 0.06, 0.1, 0.3],
-    [0.91, 0.15, 0.06, 0.21]
+    [-shift + 20, h * 0.16, 60, 160],
+    [-shift + 100, h * 0.1, 80, 220],
+    [-shift + 210, h * 0.17, 55, 150],
+    [-shift + 300, h * 0.12, 75, 210],
+    [-shift + 410, h * 0.08, 85, 250],
+    [-shift + 530, h * 0.16, 60, 160],
+    [-shift + 620, h * 0.11, 70, 220],
+    [-shift + 730, h * 0.14, 90, 180],
+    [-shift + 860, h * 0.09, 75, 240]
   ];
 
-  ctx.fillStyle = "#2f3542";
-  buildings.forEach(([bx, by, bw, bh]) => {
-    ctx.fillRect(w * bx, h * by, w * bw, h * bh);
+  buildings.forEach(([bx, by, bw, bh], index) => {
+    let x = bx;
+    while (x < w + 100) {
+      ctx.fillStyle = "#2f3542";
+      ctx.fillRect(x, by, bw, bh);
 
-    ctx.fillStyle = "#ffe8a3";
-    for (let row = 0; row < 5; row++) {
-      for (let col = 0; col < 3; col++) {
-        const winX = w * bx + 10 + col * 16;
-        const winY = h * by + 10 + row * 18;
-        ctx.fillRect(winX, winY, 6, 8);
+      ctx.fillStyle = (frameCount + index * 7) % 20 < 10 ? "#ffe8a3" : "#dbeafe";
+      for (let row = 0; row < 6; row++) {
+        for (let col = 0; col < 3; col++) {
+          ctx.fillRect(x + 10 + col * 16, by + 12 + row * 18, 6, 8);
+        }
       }
+
+      x += 900;
     }
-    ctx.fillStyle = "#2f3542";
   });
 }
 
-function drawLegoBackground() {
-  ctx.fillStyle = "#ffffff";
+function drawCloud(x, y, scale) {
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
   ctx.beginPath();
-  ctx.arc(w * 0.82, h * 0.12, 30, 0, Math.PI * 2);
+  ctx.arc(x, y, 18 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 20 * scale, y - 6 * scale, 16 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 40 * scale, y, 18 * scale, 0, Math.PI * 2);
   ctx.fill();
+}
+
+function drawLegoBackground() {
+  drawCloud((frameCount * 0.4) % (w + 120) - 120, h * 0.14, 1);
+  drawCloud((frameCount * 0.3 + 250) % (w + 120) - 120, h * 0.1, 0.9);
+
+  const bob = Math.sin(frameCount * 0.02) * 4;
 
   const blocks = [
-    { x: 0.06, y: 0.22, width: 0.12, height: 0.1, color: "#34c759" },
-    { x: 0.18, y: 0.18, width: 0.1, height: 0.14, color: "#ffcc00" },
-    { x: 0.75, y: 0.17, width: 0.13, height: 0.15, color: "#ff3b30" },
-    { x: 0.86, y: 0.22, width: 0.09, height: 0.1, color: "#8b5cf6" }
+    { x: w * 0.06, y: h * 0.22 + bob, width: 110, height: 70, color: "#34c759" },
+    { x: w * 0.18, y: h * 0.18 - bob, width: 90, height: 100, color: "#ffcc00" },
+    { x: w * 0.75, y: h * 0.17 + bob, width: 110, height: 110, color: "#ff3b30" },
+    { x: w * 0.87, y: h * 0.22 - bob, width: 80, height: 70, color: "#8b5cf6" }
   ];
 
   blocks.forEach((b) => {
     ctx.fillStyle = b.color;
-    ctx.fillRect(w * b.x, h * b.y, w * b.width, h * b.height);
+    ctx.fillRect(b.x, b.y, b.width, b.height);
 
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
-    const left = w * b.x;
-    const top = h * b.y;
-    const bw = w * b.width;
-
-    for (let i = 0; i < 2; i++) {
-      ctx.beginPath();
-      ctx.arc(left + bw * 0.3 + i * bw * 0.28, top + 10, 8, 0, Math.PI * 2);
-      ctx.fill();
-    }
+    ctx.fillStyle = "rgba(255,255,255,0.92)";
+    ctx.beginPath();
+    ctx.arc(b.x + b.width * 0.3, b.y + 10, 8, 0, Math.PI * 2);
+    ctx.arc(b.x + b.width * 0.58, b.y + 10, 8, 0, Math.PI * 2);
+    ctx.fill();
   });
 }
 
 function drawLunarBackground() {
-  for (let i = 0; i < 60; i++) {
+  for (let i = 0; i < 70; i++) {
     const x = (i * 97) % w;
     const y = (i * 47) % (h * 0.45);
     const size = i % 3 === 0 ? 2 : 1.2;
-    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    const alpha = 0.4 + 0.5 * Math.abs(Math.sin(frameCount * 0.02 + i));
+    ctx.fillStyle = `rgba(255,255,255,${alpha})`;
     ctx.beginPath();
     ctx.arc(x, y, size, 0, Math.PI * 2);
     ctx.fill();
@@ -412,7 +426,7 @@ function drawLunarBackground() {
 
   ctx.fillStyle = "rgba(245,243,206,0.2)";
   ctx.beginPath();
-  ctx.arc(w * 0.82, h * 0.14, 52, 0, Math.PI * 2);
+  ctx.arc(w * 0.82, h * 0.14, 52 + Math.sin(frameCount * 0.02) * 2, 0, Math.PI * 2);
   ctx.fill();
 
   ctx.fillStyle = "#f5f3ce";
@@ -424,7 +438,7 @@ function drawLunarBackground() {
   ctx.beginPath();
   ctx.moveTo(0, h * 0.48);
   ctx.quadraticCurveTo(w * 0.15, h * 0.42, w * 0.3, h * 0.49);
-  ctx.quadraticCurveTo(w * 0.45, h * 0.56, w * 0.6, h * 0.5);
+  ctx.quadraticCurveTo(w * 0.45, h * 0.56 + Math.sin(frameCount * 0.01) * 3, w * 0.6, h * 0.5);
   ctx.quadraticCurveTo(w * 0.8, h * 0.43, w, h * 0.5);
   ctx.lineTo(w, h * 0.65);
   ctx.lineTo(0, h * 0.65);
@@ -439,9 +453,9 @@ function drawLunarBackground() {
     [0.88, 0.88, 18]
   ];
 
-  craters.forEach(([cx, cy, r]) => {
+  craters.forEach(([cx, cy, r], index) => {
     ctx.beginPath();
-    ctx.arc(w * cx, h * cy, r, 0, Math.PI * 2);
+    ctx.arc(w * cx, h * cy + Math.sin(frameCount * 0.01 + index) * 1.5, r, 0, Math.PI * 2);
     ctx.fill();
   });
 }
@@ -502,9 +516,9 @@ function drawRoad() {
   ctx.lineTo(w * 0.65, h);
   ctx.stroke();
 
-  ctx.strokeStyle = "rgba(255,255,255,0.2)";
-  for (let i = 0; i < 7; i++) {
-    const depth = (i / 7 + (frameCount * (0.003 + score * 0.00015))) % 1;
+  ctx.strokeStyle = "rgba(255,255,255,0.22)";
+  for (let i = 0; i < 8; i++) {
+    const depth = (i / 8 + (frameCount * (0.003 + score * 0.00015))) % 1;
     const edges = getRoadEdgesAtDepth(depth);
     ctx.beginPath();
     ctx.moveTo(edges.leftX, edges.y);
@@ -557,15 +571,22 @@ function drawCoins() {
     const x = getLaneX(coin.lane, coin.depth);
     const edges = getRoadEdgesAtDepth(coin.depth);
     const size = 16 + coin.depth * 28;
+    const pulse = 1 + Math.sin(frameCount * 0.15 + coin.depth * 10) * 0.08;
+    const finalSize = size * pulse;
+
+    ctx.fillStyle = "rgba(255,240,150,0.35)";
+    ctx.beginPath();
+    ctx.arc(x, edges.y - finalSize, finalSize / 2 + 6, 0, Math.PI * 2);
+    ctx.fill();
 
     ctx.fillStyle = "#b45309";
     ctx.beginPath();
-    ctx.arc(x, edges.y - size, size / 2 + 3, 0, Math.PI * 2);
+    ctx.arc(x, edges.y - finalSize, finalSize / 2 + 3, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.fillStyle = "#ffd700";
     ctx.beginPath();
-    ctx.arc(x, edges.y - size, size / 2, 0, Math.PI * 2);
+    ctx.arc(x, edges.y - finalSize, finalSize / 2, 0, Math.PI * 2);
     ctx.fill();
 
     ctx.strokeStyle = "#fff7ae";
