@@ -32,39 +32,44 @@ const saveKeyOwnedThemes = "runnerOwnedThemes";
 
 const themes = {
   desert: {
-    skyTop: "#ff9966",
-    skyBottom: "#ffd699",
+    skyTop: "#ff8a5b",
+    skyMid: "#ffb36b",
+    skyBottom: "#ffe0a3",
     ground: "#d8b06a",
     road: "#7a5530",
     line: "#fff3c4",
-    deco: "#c97e3a"
+    deco: "#8f5b2e"
   },
   snow: {
-    skyTop: "#bfe9ff",
-    skyBottom: "#eefaff",
-    ground: "#f4f8ff",
+    skyTop: "#98d8ff",
+    skyMid: "#cceeff",
+    skyBottom: "#f7fcff",
+    ground: "#eef6ff",
     road: "#7f8c99",
     line: "#ffffff",
-    deco: "#d9ecff"
+    deco: "#dceeff"
   },
   city: {
-    skyTop: "#516b9a",
+    skyTop: "#1f2f54",
+    skyMid: "#4d648d",
     skyBottom: "#b7c5dd",
     ground: "#6b7280",
     road: "#262626",
     line: "#f3f4f6",
-    deco: "#3f3f46"
+    deco: "#2f3542"
   },
   lego: {
-    skyTop: "#7ad7ff",
-    skyBottom: "#dff8ff",
+    skyTop: "#6ed6ff",
+    skyMid: "#a8ecff",
+    skyBottom: "#e7fbff",
     ground: "#ffd54f",
     road: "#2563eb",
     line: "#ffffff",
     deco: "#34c759"
   },
   lunar: {
-    skyTop: "#0f1021",
+    skyTop: "#050816",
+    skyMid: "#131a33",
     skyBottom: "#2b2d42",
     ground: "#bcc3cc",
     road: "#5f6b76",
@@ -120,6 +125,18 @@ function resetGame() {
   coinsEl.textContent = getCoins();
   messageEl.textContent = "Press Start to begin.";
   drawScene();
+}
+
+function getGameSpeed() {
+  return Math.min(0.009 + score * 0.00035, 0.02);
+}
+
+function getObstacleSpawnRate() {
+  return Math.max(90 - score * 2, 45);
+}
+
+function getCoinSpawnRate() {
+  return Math.max(120 - score, 65);
 }
 
 function moveLeft() {
@@ -193,8 +210,10 @@ function updateJump() {
 }
 
 function updateObstacles() {
+  const speed = getGameSpeed();
+
   for (let i = obstacles.length - 1; i >= 0; i--) {
-    obstacles[i].depth += 0.009;
+    obstacles[i].depth += speed;
 
     if (obstacles[i].depth > 1.05) {
       obstacles.splice(i, 1);
@@ -214,8 +233,10 @@ function updateObstacles() {
 }
 
 function updateCoinsOnTrack() {
+  const speed = getGameSpeed();
+
   for (let i = coinsOnTrack.length - 1; i >= 0; i--) {
-    coinsOnTrack[i].depth += 0.009;
+    coinsOnTrack[i].depth += speed;
 
     if (coinsOnTrack[i].depth > 1.05) {
       coinsOnTrack.splice(i, 1);
@@ -231,94 +252,211 @@ function updateCoinsOnTrack() {
   }
 }
 
-function drawDecorations(theme) {
-  const current = getCurrentThemeName();
+function drawSky(theme) {
+  const sky = ctx.createLinearGradient(0, 0, 0, h);
+  sky.addColorStop(0, theme.skyTop);
+  sky.addColorStop(0.55, theme.skyMid);
+  sky.addColorStop(1, theme.skyBottom);
+  ctx.fillStyle = sky;
+  ctx.fillRect(0, 0, w, h);
+}
 
-  if (current === "desert") {
-    ctx.fillStyle = theme.deco;
-    ctx.fillRect(w * 0.1, h * 0.24, 35, 90);
-    ctx.fillRect(w * 0.85, h * 0.22, 35, 100);
+function drawDesertBackground(theme) {
+  ctx.fillStyle = "#ffd27a";
+  ctx.beginPath();
+  ctx.arc(w * 0.82, h * 0.14, 42, 0, Math.PI * 2);
+  ctx.fill();
 
+  ctx.fillStyle = "#e7b96a";
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.35);
+  ctx.quadraticCurveTo(w * 0.2, h * 0.25, w * 0.4, h * 0.35);
+  ctx.quadraticCurveTo(w * 0.6, h * 0.45, w * 0.8, h * 0.34);
+  ctx.quadraticCurveTo(w * 0.9, h * 0.3, w, h * 0.36);
+  ctx.lineTo(w, h * 0.55);
+  ctx.lineTo(0, h * 0.55);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#d89b52";
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.45);
+  ctx.quadraticCurveTo(w * 0.25, h * 0.34, w * 0.45, h * 0.44);
+  ctx.quadraticCurveTo(w * 0.7, h * 0.54, w, h * 0.42);
+  ctx.lineTo(w, h * 0.6);
+  ctx.lineTo(0, h * 0.6);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = theme.deco;
+  drawCactus(w * 0.1, h * 0.31, 0.9);
+  drawCactus(w * 0.9, h * 0.3, 1.05);
+}
+
+function drawCactus(x, y, scale) {
+  ctx.fillRect(x, y, 16 * scale, 70 * scale);
+  ctx.fillRect(x - 16 * scale, y + 18 * scale, 16 * scale, 12 * scale);
+  ctx.fillRect(x + 16 * scale, y + 28 * scale, 16 * scale, 12 * scale);
+  ctx.fillRect(x - 16 * scale, y + 18 * scale, 10 * scale, 34 * scale);
+  ctx.fillRect(x + 22 * scale, y + 28 * scale, 10 * scale, 34 * scale);
+}
+
+function drawSnowBackground() {
+  ctx.fillStyle = "#dfefff";
+  ctx.beginPath();
+  ctx.arc(w * 0.8, h * 0.16, 34, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#d8ebff";
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.38);
+  ctx.quadraticCurveTo(w * 0.2, h * 0.28, w * 0.4, h * 0.38);
+  ctx.quadraticCurveTo(w * 0.6, h * 0.48, w * 0.8, h * 0.37);
+  ctx.quadraticCurveTo(w * 0.9, h * 0.31, w, h * 0.38);
+  ctx.lineTo(w, h * 0.56);
+  ctx.lineTo(0, h * 0.56);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#f6fbff";
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.48);
+  ctx.quadraticCurveTo(w * 0.22, h * 0.42, w * 0.45, h * 0.49);
+  ctx.quadraticCurveTo(w * 0.65, h * 0.56, w, h * 0.46);
+  ctx.lineTo(w, h * 0.62);
+  ctx.lineTo(0, h * 0.62);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#ffffff";
+  for (let i = 0; i < 40; i++) {
+    const x = (i * 53 + frameCount * 1.1) % w;
+    const y = (i * 29 + frameCount * 1.6) % h;
     ctx.beginPath();
-    ctx.arc(w * 0.82, h * 0.13, 38, 0, Math.PI * 2);
-    ctx.fillStyle = "#ffdd99";
-    ctx.fill();
-  }
-
-  if (current === "snow") {
-    ctx.fillStyle = "#ffffff";
-    for (let i = 0; i < 35; i++) {
-      const x = (i * 37 + frameCount * 1.2) % w;
-      const y = (i * 23 + frameCount * 1.7) % h;
-      ctx.beginPath();
-      ctx.arc(x, y, 2.5, 0, Math.PI * 2);
-      ctx.fill();
-    }
-  }
-
-  if (current === "city") {
-    ctx.fillStyle = theme.deco;
-    ctx.fillRect(w * 0.05, h * 0.1, 70, h * 0.25);
-    ctx.fillRect(w * 0.18, h * 0.15, 60, h * 0.2);
-    ctx.fillRect(w * 0.8, h * 0.08, 80, h * 0.27);
-    ctx.fillRect(w * 0.72, h * 0.14, 55, h * 0.21);
-
-    ctx.fillStyle = "#f8fafc";
-    for (let i = 0; i < 5; i++) {
-      ctx.fillRect(w * 0.07, h * 0.13 + i * 22, 8, 8);
-      ctx.fillRect(w * 0.82, h * 0.11 + i * 22, 8, 8);
-    }
-  }
-
-  if (current === "lego") {
-    ctx.fillStyle = "#34c759";
-    ctx.fillRect(w * 0.08, h * 0.22, 100, 70);
-    ctx.fillRect(w * 0.78, h * 0.2, 110, 80);
-
-    ctx.fillStyle = "#ffcc00";
-    ctx.fillRect(w * 0.18, h * 0.19, 80, 90);
-
-    ctx.fillStyle = "#ff3b30";
-    ctx.fillRect(w * 0.75, h * 0.17, 90, 100);
-
-    ctx.fillStyle = "#ffffff";
-    ctx.beginPath();
-    ctx.arc(w * 0.2, h * 0.19, 8, 0, Math.PI * 2);
-    ctx.arc(w * 0.24, h * 0.19, 8, 0, Math.PI * 2);
-    ctx.arc(w * 0.78, h * 0.17, 8, 0, Math.PI * 2);
-    ctx.arc(w * 0.82, h * 0.17, 8, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  if (current === "lunar") {
-    ctx.fillStyle = "#f5f3ce";
-    ctx.beginPath();
-    ctx.arc(w * 0.82, h * 0.14, 35, 0, Math.PI * 2);
-    ctx.fill();
-
-    ctx.fillStyle = "#9aa0a6";
-    ctx.beginPath();
-    ctx.arc(w * 0.2, h * 0.82, 35, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(w * 0.28, h * 0.86, 20, 0, Math.PI * 2);
-    ctx.fill();
-    ctx.beginPath();
-    ctx.arc(w * 0.75, h * 0.8, 28, 0, Math.PI * 2);
+    ctx.arc(x, y, 2 + (i % 2), 0, Math.PI * 2);
     ctx.fill();
   }
 }
 
+function drawCityBackground() {
+  ctx.fillStyle = "#f7d27a";
+  ctx.beginPath();
+  ctx.arc(w * 0.78, h * 0.16, 28, 0, Math.PI * 2);
+  ctx.fill();
+
+  const buildings = [
+    [0.04, 0.14, 0.07, 0.22],
+    [0.12, 0.08, 0.09, 0.28],
+    [0.22, 0.16, 0.07, 0.2],
+    [0.72, 0.12, 0.08, 0.24],
+    [0.81, 0.06, 0.1, 0.3],
+    [0.91, 0.15, 0.06, 0.21]
+  ];
+
+  ctx.fillStyle = "#2f3542";
+  buildings.forEach(([bx, by, bw, bh]) => {
+    ctx.fillRect(w * bx, h * by, w * bw, h * bh);
+
+    ctx.fillStyle = "#ffe8a3";
+    for (let row = 0; row < 5; row++) {
+      for (let col = 0; col < 3; col++) {
+        const winX = w * bx + 10 + col * 16;
+        const winY = h * by + 10 + row * 18;
+        ctx.fillRect(winX, winY, 6, 8);
+      }
+    }
+    ctx.fillStyle = "#2f3542";
+  });
+}
+
+function drawLegoBackground() {
+  ctx.fillStyle = "#ffffff";
+  ctx.beginPath();
+  ctx.arc(w * 0.82, h * 0.12, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  const blocks = [
+    { x: 0.06, y: 0.22, width: 0.12, height: 0.1, color: "#34c759" },
+    { x: 0.18, y: 0.18, width: 0.1, height: 0.14, color: "#ffcc00" },
+    { x: 0.75, y: 0.17, width: 0.13, height: 0.15, color: "#ff3b30" },
+    { x: 0.86, y: 0.22, width: 0.09, height: 0.1, color: "#8b5cf6" }
+  ];
+
+  blocks.forEach((b) => {
+    ctx.fillStyle = b.color;
+    ctx.fillRect(w * b.x, h * b.y, w * b.width, h * b.height);
+
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    const left = w * b.x;
+    const top = h * b.y;
+    const bw = w * b.width;
+
+    for (let i = 0; i < 2; i++) {
+      ctx.beginPath();
+      ctx.arc(left + bw * 0.3 + i * bw * 0.28, top + 10, 8, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+}
+
+function drawLunarBackground() {
+  for (let i = 0; i < 60; i++) {
+    const x = (i * 97) % w;
+    const y = (i * 47) % (h * 0.45);
+    const size = i % 3 === 0 ? 2 : 1.2;
+    ctx.fillStyle = "rgba(255,255,255,0.9)";
+    ctx.beginPath();
+    ctx.arc(x, y, size, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  ctx.fillStyle = "rgba(245,243,206,0.2)";
+  ctx.beginPath();
+  ctx.arc(w * 0.82, h * 0.14, 52, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#f5f3ce";
+  ctx.beginPath();
+  ctx.arc(w * 0.82, h * 0.14, 34, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#a8b0bb";
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.48);
+  ctx.quadraticCurveTo(w * 0.15, h * 0.42, w * 0.3, h * 0.49);
+  ctx.quadraticCurveTo(w * 0.45, h * 0.56, w * 0.6, h * 0.5);
+  ctx.quadraticCurveTo(w * 0.8, h * 0.43, w, h * 0.5);
+  ctx.lineTo(w, h * 0.65);
+  ctx.lineTo(0, h * 0.65);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#9098a1";
+  const craters = [
+    [0.14, 0.82, 34],
+    [0.28, 0.86, 20],
+    [0.75, 0.81, 28],
+    [0.88, 0.88, 18]
+  ];
+
+  craters.forEach(([cx, cy, r]) => {
+    ctx.beginPath();
+    ctx.arc(w * cx, h * cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+}
+
 function drawBackground() {
   const theme = getCurrentTheme();
+  const current = getCurrentThemeName();
 
-  const sky = ctx.createLinearGradient(0, 0, 0, h);
-  sky.addColorStop(0, theme.skyTop);
-  sky.addColorStop(1, theme.skyBottom);
-  ctx.fillStyle = sky;
-  ctx.fillRect(0, 0, w, h);
+  drawSky(theme);
 
-  drawDecorations(theme);
+  if (current === "desert") drawDesertBackground(theme);
+  if (current === "snow") drawSnowBackground();
+  if (current === "city") drawCityBackground();
+  if (current === "lego") drawLegoBackground();
+  if (current === "lunar") drawLunarBackground();
 
   ctx.fillStyle = theme.ground;
   ctx.fillRect(0, h * 0.3, w, h * 0.7);
@@ -338,12 +476,12 @@ function drawRoad() {
   ctx.fill();
 
   if (current === "lego") {
-    ctx.strokeStyle = "#ffffff";
-    ctx.lineWidth = 4;
-
     for (let i = 0; i < 7; i++) {
       const depth = i / 7;
       const edges = getRoadEdgesAtDepth(depth);
+
+      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(edges.leftX, edges.y);
       ctx.lineTo(edges.rightX, edges.y);
@@ -366,7 +504,7 @@ function drawRoad() {
 
   ctx.strokeStyle = "rgba(255,255,255,0.2)";
   for (let i = 0; i < 7; i++) {
-    const depth = (i / 7 + (frameCount * 0.005)) % 1;
+    const depth = (i / 7 + (frameCount * (0.003 + score * 0.00015))) % 1;
     const edges = getRoadEdgesAtDepth(depth);
     ctx.beginPath();
     ctx.moveTo(edges.leftX, edges.y);
@@ -398,8 +536,6 @@ function drawPlayer() {
 }
 
 function drawObstacles() {
-  ctx.fillStyle = "#22c55e";
-
   for (const obstacle of obstacles) {
     const x = getLaneX(obstacle.lane, obstacle.depth);
     const edges = getRoadEdgesAtDepth(obstacle.depth);
@@ -451,11 +587,11 @@ function loop() {
 
   frameCount++;
 
-  if (frameCount % 90 === 0) {
+  if (frameCount % Math.floor(getObstacleSpawnRate()) === 0) {
     spawnObstacle();
   }
 
-  if (frameCount % 120 === 0) {
+  if (frameCount % Math.floor(getCoinSpawnRate()) === 0) {
     spawnCoin();
   }
 
