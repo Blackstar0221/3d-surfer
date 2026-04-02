@@ -75,6 +75,51 @@ const themes = {
     road: "#5f6b76",
     line: "#f8fafc",
     deco: "#8d99a6"
+  },
+  forest: {
+    skyTop: "#7ecb89",
+    skyMid: "#b8e6b0",
+    skyBottom: "#e7f7d8",
+    ground: "#6f9f5a",
+    road: "#5b4636",
+    line: "#f8f1d0",
+    deco: "#2f6b3b"
+  },
+  volcano: {
+    skyTop: "#2a0f0f",
+    skyMid: "#7a1f1f",
+    skyBottom: "#ff7b2f",
+    ground: "#5b2b1f",
+    road: "#2f2f2f",
+    line: "#ffd166",
+    deco: "#ff4d2d"
+  },
+  ocean: {
+    skyTop: "#4db8ff",
+    skyMid: "#87dbff",
+    skyBottom: "#dff7ff",
+    ground: "#7fd3ff",
+    road: "#1f5f8b",
+    line: "#e8faff",
+    deco: "#ffffff"
+  },
+  candy: {
+    skyTop: "#ff9ecf",
+    skyMid: "#ffd1e8",
+    skyBottom: "#fff1f8",
+    ground: "#ffc1dd",
+    road: "#ff5fa2",
+    line: "#fff7ff",
+    deco: "#ffffff"
+  },
+  cyber: {
+    skyTop: "#090b1a",
+    skyMid: "#151a3a",
+    skyBottom: "#1c2d5a",
+    ground: "#16213e",
+    road: "#0f172a",
+    line: "#00f5ff",
+    deco: "#ff00d4"
   }
 };
 
@@ -269,6 +314,15 @@ function drawCactus(x, y, scale) {
   ctx.fillRect(x + 22 * scale, y + 28 * scale, 10 * scale, 34 * scale);
 }
 
+function drawCloud(x, y, scale) {
+  ctx.fillStyle = "rgba(255,255,255,0.92)";
+  ctx.beginPath();
+  ctx.arc(x, y, 18 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 20 * scale, y - 6 * scale, 16 * scale, 0, Math.PI * 2);
+  ctx.arc(x + 40 * scale, y, 18 * scale, 0, Math.PI * 2);
+  ctx.fill();
+}
+
 function drawDesertBackground(theme) {
   const drift = Math.sin(frameCount * 0.01) * 20;
 
@@ -378,15 +432,6 @@ function drawCityBackground() {
   });
 }
 
-function drawCloud(x, y, scale) {
-  ctx.fillStyle = "rgba(255,255,255,0.95)";
-  ctx.beginPath();
-  ctx.arc(x, y, 18 * scale, 0, Math.PI * 2);
-  ctx.arc(x + 20 * scale, y - 6 * scale, 16 * scale, 0, Math.PI * 2);
-  ctx.arc(x + 40 * scale, y, 18 * scale, 0, Math.PI * 2);
-  ctx.fill();
-}
-
 function drawLegoBackground() {
   drawCloud((frameCount * 0.4) % (w + 120) - 120, h * 0.14, 1);
   drawCloud((frameCount * 0.3 + 250) % (w + 120) - 120, h * 0.1, 0.9);
@@ -460,6 +505,164 @@ function drawLunarBackground() {
   });
 }
 
+function drawForestBackground() {
+  drawCloud((frameCount * 0.2) % (w + 120) - 120, h * 0.12, 1);
+  drawCloud((frameCount * 0.15 + 240) % (w + 120) - 120, h * 0.16, 0.8);
+
+  ctx.fillStyle = "#9ccc7c";
+  ctx.beginPath();
+  ctx.moveTo(0, h * 0.4);
+  ctx.quadraticCurveTo(w * 0.2, h * 0.3, w * 0.4, h * 0.4);
+  ctx.quadraticCurveTo(w * 0.7, h * 0.5, w, h * 0.38);
+  ctx.lineTo(w, h * 0.55);
+  ctx.lineTo(0, h * 0.55);
+  ctx.closePath();
+  ctx.fill();
+
+  for (let i = 0; i < 6; i++) {
+    const x = w * (0.08 + i * 0.16);
+    ctx.fillStyle = "#5b3c22";
+    ctx.fillRect(x, h * 0.22, 18, 85);
+
+    ctx.fillStyle = "#2f6b3b";
+    ctx.beginPath();
+    ctx.arc(x + 9, h * 0.2, 34, 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawVolcanoBackground() {
+  ctx.fillStyle = "#ffb347";
+  ctx.beginPath();
+  ctx.arc(w * 0.78, h * 0.15, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#3c1f1a";
+  ctx.beginPath();
+  ctx.moveTo(w * 0.2, h * 0.42);
+  ctx.lineTo(w * 0.35, h * 0.18);
+  ctx.lineTo(w * 0.5, h * 0.42);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.fillStyle = "#5b2b1f";
+  ctx.beginPath();
+  ctx.moveTo(w * 0.45, h * 0.44);
+  ctx.lineTo(w * 0.62, h * 0.16);
+  ctx.lineTo(w * 0.8, h * 0.44);
+  ctx.closePath();
+  ctx.fill();
+
+  ctx.strokeStyle = "#ff4d2d";
+  ctx.lineWidth = 6;
+  ctx.beginPath();
+  ctx.moveTo(w * 0.62, h * 0.2);
+  ctx.lineTo(w * 0.66 + Math.sin(frameCount * 0.05) * 3, h * 0.28);
+  ctx.lineTo(w * 0.69, h * 0.38);
+  ctx.stroke();
+
+  for (let i = 0; i < 12; i++) {
+    const x = (i * 90 + frameCount * 2) % w;
+    const y = h * 0.2 + ((i * 17 + frameCount * 1.5) % 80);
+    ctx.fillStyle = "rgba(255,140,60,0.7)";
+    ctx.beginPath();
+    ctx.arc(x, y, 2 + (i % 3), 0, Math.PI * 2);
+    ctx.fill();
+  }
+}
+
+function drawOceanBackground() {
+  drawCloud((frameCount * 0.25) % (w + 120) - 120, h * 0.12, 1);
+  drawCloud((frameCount * 0.18 + 220) % (w + 120) - 120, h * 0.18, 0.9);
+
+  ctx.fillStyle = "#fff4b0";
+  ctx.beginPath();
+  ctx.arc(w * 0.8, h * 0.16, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.fillStyle = "#5ec6f2";
+  for (let i = 0; i < 3; i++) {
+    ctx.beginPath();
+    ctx.moveTo(0, h * (0.4 + i * 0.05));
+    for (let x = 0; x <= w; x += 20) {
+      const y = h * (0.4 + i * 0.05) + Math.sin((x + frameCount * (1 + i)) * 0.02) * 8;
+      ctx.lineTo(x, y);
+    }
+    ctx.lineTo(w, h * 0.7);
+    ctx.lineTo(0, h * 0.7);
+    ctx.closePath();
+    ctx.fill();
+  }
+}
+
+function drawCandyBackground() {
+  drawCloud((frameCount * 0.22) % (w + 120) - 120, h * 0.12, 1);
+  drawCloud((frameCount * 0.16 + 240) % (w + 120) - 120, h * 0.17, 0.85);
+
+  ctx.fillStyle = "#fff0f8";
+  ctx.beginPath();
+  ctx.arc(w * 0.82, h * 0.14, 30, 0, Math.PI * 2);
+  ctx.fill();
+
+  const hills = ["#ffb3d9", "#ffcce5", "#ffdff0"];
+  hills.forEach((color, i) => {
+    ctx.fillStyle = color;
+    ctx.beginPath();
+    ctx.moveTo(0, h * (0.43 + i * 0.04));
+    ctx.quadraticCurveTo(w * 0.25, h * (0.33 + i * 0.03), w * 0.5, h * (0.44 + i * 0.03));
+    ctx.quadraticCurveTo(w * 0.75, h * (0.52 + i * 0.03), w, h * (0.42 + i * 0.03));
+    ctx.lineTo(w, h * 0.65);
+    ctx.lineTo(0, h * 0.65);
+    ctx.closePath();
+    ctx.fill();
+  });
+
+  for (let i = 0; i < 5; i++) {
+    const x = w * (0.1 + i * 0.18);
+    ctx.fillStyle = "#ffffff";
+    ctx.fillRect(x, h * 0.24, 10, 60);
+    ctx.beginPath();
+    ctx.arc(x + 5, h * 0.23, 22, 0, Math.PI * 2);
+    ctx.fillStyle = i % 2 === 0 ? "#ff69b4" : "#7dd3fc";
+    ctx.fill();
+  }
+}
+
+function drawCyberBackground() {
+  for (let i = 0; i < 60; i++) {
+    const x = (i * 83) % w;
+    const y = (i * 37) % (h * 0.45);
+    const alpha = 0.3 + 0.5 * Math.abs(Math.sin(frameCount * 0.03 + i));
+    ctx.fillStyle = `rgba(0,245,255,${alpha})`;
+    ctx.beginPath();
+    ctx.arc(x, y, i % 2 === 0 ? 1.5 : 1, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const shift = (frameCount * 0.3) % 120;
+
+  ctx.strokeStyle = "rgba(0,245,255,0.3)";
+  ctx.lineWidth = 1;
+
+  for (let i = 0; i < 8; i++) {
+    const y = h * 0.1 + i * 35;
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(w, y);
+    ctx.stroke();
+  }
+
+  for (let i = 0; i < 6; i++) {
+    const x = (i * 160 + shift) % (w + 100);
+    ctx.fillStyle = "#ff00d4";
+    ctx.fillRect(x, h * 0.16, 60, 120);
+    ctx.fillStyle = "#00f5ff";
+    ctx.fillRect(x + 8, h * 0.18, 10, 10);
+    ctx.fillRect(x + 26, h * 0.18, 10, 10);
+    ctx.fillRect(x + 44, h * 0.18, 10, 10);
+  }
+}
+
 function drawBackground() {
   const theme = getCurrentTheme();
   const current = getCurrentThemeName();
@@ -471,6 +674,11 @@ function drawBackground() {
   if (current === "city") drawCityBackground();
   if (current === "lego") drawLegoBackground();
   if (current === "lunar") drawLunarBackground();
+  if (current === "forest") drawForestBackground();
+  if (current === "volcano") drawVolcanoBackground();
+  if (current === "ocean") drawOceanBackground();
+  if (current === "candy") drawCandyBackground();
+  if (current === "cyber") drawCyberBackground();
 
   ctx.fillStyle = theme.ground;
   ctx.fillRect(0, h * 0.3, w, h * 0.7);
@@ -489,12 +697,12 @@ function drawRoad() {
   ctx.closePath();
   ctx.fill();
 
-  if (current === "lego") {
+  if (current === "lego" || current === "cyber") {
     for (let i = 0; i < 7; i++) {
       const depth = i / 7;
       const edges = getRoadEdgesAtDepth(depth);
 
-      ctx.strokeStyle = "rgba(255,255,255,0.9)";
+      ctx.strokeStyle = current === "cyber" ? "rgba(0,245,255,0.8)" : "rgba(255,255,255,0.9)";
       ctx.lineWidth = 4;
       ctx.beginPath();
       ctx.moveTo(edges.leftX, edges.y);
