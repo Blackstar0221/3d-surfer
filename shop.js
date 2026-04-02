@@ -10,31 +10,61 @@ const themes = [
     id: "desert",
     name: "Sunset Desert",
     price: 0,
-    preview: "linear-gradient(to bottom, #ff9966, #ffd699)"
+    preview: "linear-gradient(to bottom, #ff8a5b, #ffe0a3)"
   },
   {
     id: "snow",
     name: "Snow",
     price: 10,
-    preview: "linear-gradient(to bottom, #bfe9ff, #eefaff)"
+    preview: "linear-gradient(to bottom, #98d8ff, #f7fcff)"
   },
   {
     id: "city",
     name: "City",
     price: 15,
-    preview: "linear-gradient(to bottom, #6a85b6, #bac8e0)"
+    preview: "linear-gradient(to bottom, #1f2f54, #b7c5dd)"
   },
   {
     id: "lego",
     name: "Lego",
     price: 20,
-    preview: "linear-gradient(to bottom, #7ad7ff, #ffd54f)"
+    preview: "linear-gradient(to bottom, #6ed6ff, #ffd54f)"
   },
   {
     id: "lunar",
     name: "Lunar",
     price: 25,
-    preview: "linear-gradient(to bottom, #0f1021, #2b2d42)"
+    preview: "linear-gradient(to bottom, #050816, #2b2d42)"
+  },
+  {
+    id: "forest",
+    name: "Forest",
+    price: 30,
+    preview: "linear-gradient(to bottom, #7ecb89, #e7f7d8)"
+  },
+  {
+    id: "volcano",
+    name: "Volcano",
+    price: 35,
+    preview: "linear-gradient(to bottom, #2a0f0f, #ff7b2f)"
+  },
+  {
+    id: "ocean",
+    name: "Ocean",
+    price: 30,
+    preview: "linear-gradient(to bottom, #4db8ff, #dff7ff)"
+  },
+  {
+    id: "candy",
+    name: "Candy",
+    price: 40,
+    preview: "linear-gradient(to bottom, #ff9ecf, #fff1f8)"
+  },
+  {
+    id: "cyber",
+    name: "Cyber",
+    price: 45,
+    preview: "linear-gradient(to bottom, #090b1a, #1c2d5a)"
   }
 ];
 
