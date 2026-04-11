@@ -1,32 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Runner Game</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fake 3D Runner</title>
+  <link rel="stylesheet" href="style.css" />
 </head>
 <body>
-  <div id="ui">
-    <h1>Runner Game</h1>
-    <p class="desktop-text">Move: ← → | Jump: Space / ↑</p>
-    <p class="mobile-text">Tap buttons to move and jump</p>
-    <p>Score: <span id="score">0</span></p>
-    <p>Coins: <span id="coins">0</span></p>
-    <div class="button-row">
-      <button id="startBtn">Start</button>
-      <button id="restartBtn">Restart</button>
-      <a href="shop.html" class="shop-link">Shop</a>
-    </div>
-    <p id="message">Press Start to begin.</p>
+  <div class="hud">
+    <div class="hud-box">Score: <span id="score">0</span></div>
+    <div class="hud-box">Coins: <span id="coins">0</span></div>
+    <div class="hud-box message" id="message">Press Start to begin.</div>
+  </div>
+
+  <div class="top-buttons">
+    <button id="startBtn">Start</button>
+    <button id="restartBtn">Restart</button>
+    <a href="shop.html" class="shop-link">Shop</a>
   </div>
 
   <canvas id="gameCanvas"></canvas>
 
-  <div id="mobileControls">
-    <button id="leftBtn">←</button>
-    <button id="jumpBtn">↑</button>
-    <button id="rightBtn">→</button>
+  <div class="controls">
+    <button id="leftBtn">◀</button>
+    <button id="jumpBtn">▲</button>
+    <button id="rightBtn">▶</button>
   </div>
 
   <script src="game.js"></script>
