@@ -1,128 +1,137 @@
-body {
+* {
+  box-sizing: border-box;
   margin: 0;
-  overflow: hidden;
-  font-family: Arial, sans-serif;
-  touch-action: manipulation;
-  background: #87ceeb;
+  padding: 0;
 }
 
-#gameCanvas {
+body {
+  overflow: hidden;
+  font-family: Arial, sans-serif;
+  background: #111;
+}
+
+canvas {
   display: block;
   width: 100vw;
   height: 100vh;
 }
 
-#ui {
-  position: absolute;
-  top: 12px;
-  left: 12px;
-  z-index: 10;
+.hud {
+  position: fixed;
+  top: 16px;
+  left: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  z-index: 20;
+}
+
+.hud-box {
   background: rgba(0, 0, 0, 0.55);
   color: white;
-  padding: 14px;
-  border-radius: 12px;
-  max-width: 300px;
-}
-
-#ui h1 {
-  margin: 0 0 8px 0;
-  font-size: 22px;
-}
-
-#ui p {
-  margin: 6px 0;
-  font-size: 14px;
-  line-height: 1.3;
-}
-
-.button-row {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 10px;
-  margin-bottom: 8px;
-}
-
-button,
-.shop-link {
-  border: none;
-  border-radius: 10px;
   padding: 10px 14px;
-  font-size: 14px;
-  cursor: pointer;
-  text-decoration: none;
-  display: inline-block;
+  border-radius: 12px;
+  font-size: 18px;
+  font-weight: bold;
+  backdrop-filter: blur(4px);
+  max-width: 260px;
 }
 
-#startBtn {
-  background: #22c55e;
-  color: white;
+.message {
+  font-size: 16px;
+  font-weight: normal;
 }
 
-#restartBtn {
-  background: #f59e0b;
-  color: white;
+.top-buttons {
+  position: fixed;
+  top: 16px;
+  right: 16px;
+  display: flex;
+  gap: 10px;
+  z-index: 20;
 }
 
+.top-buttons button,
 .shop-link {
-  background: #3b82f6;
-  color: white;
+  background: rgba(255, 255, 255, 0.92);
+  color: #111;
+  border: none;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: bold;
+  text-decoration: none;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
 }
 
-#mobileControls {
-  position: absolute;
-  bottom: 22px;
+.controls {
+  position: fixed;
+  bottom: 24px;
   left: 50%;
   transform: translateX(-50%);
-  z-index: 10;
   display: flex;
-  gap: 12px;
+  gap: 20px;
+  z-index: 30;
 }
 
-#mobileControls button {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  padding: 0;
-  font-size: 24px;
+.controls button {
+  width: 110px;
+  height: 110px;
+  font-size: 40px;
+  border: none;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #222;
   font-weight: bold;
-  background: rgba(255, 255, 255, 0.3);
-  color: white;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.28);
+  cursor: pointer;
+  touch-action: manipulation;
 }
 
-.mobile-text {
-  display: none;
+.controls button:active {
+  transform: scale(0.95);
 }
 
-.desktop-text {
-  display: block;
-}
-
-@media (max-width: 768px) {
-  #ui {
-    max-width: 240px;
-    padding: 12px;
+@media (max-width: 700px) {
+  .hud {
+    top: 10px;
+    left: 10px;
+    gap: 8px;
   }
 
-  #ui h1 {
-    font-size: 18px;
+  .hud-box {
+    font-size: 15px;
+    padding: 8px 12px;
+    max-width: 220px;
   }
 
-  #ui p {
-    font-size: 13px;
+  .message {
+    font-size: 14px;
   }
 
-  #mobileControls button {
-    width: 58px;
-    height: 58px;
-    font-size: 22px;
+  .top-buttons {
+    top: 10px;
+    right: 10px;
+    gap: 8px;
   }
 
-  .mobile-text {
-    display: block;
+  .top-buttons button,
+  .shop-link {
+    font-size: 14px;
+    padding: 10px 12px;
+    border-radius: 10px;
   }
 
-  .desktop-text {
-    display: none;
+  .controls {
+    bottom: 18px;
+    gap: 14px;
+  }
+
+  .controls button {
+    width: 92px;
+    height: 92px;
+    font-size: 34px;
+    border-radius: 18px;
   }
 }
